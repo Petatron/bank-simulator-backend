@@ -1,6 +1,9 @@
 postgres:
-	docker run --name postgres15 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -d postgres:latest
-
+	# docker pull jesselee2020/bank_backend_postgres:latest
+	# docker tag jesselee2020/bank_backend_postgres:latest bank_backend_postgres
+	docker pull postgres:latest
+	docker rm -f postgres15
+	docker run --name postgres15 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -d postgres:latest	
 createdb:
 	docker exec -it postgres15 createdb --username=root --owner=root bank_simulator
 
@@ -13,4 +16,5 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "postgresql://root:password@localhost:5432/bank_simulator?sslmode=disable" -verbose down
 
+# run-in-sequence: postgres dropdb createdb migratedown migrateup
 .PHONY: postgres createdb dropdb migrateup migratedown
