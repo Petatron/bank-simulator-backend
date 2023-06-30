@@ -1,6 +1,7 @@
 postgres:
+	docker pull postgres:latest
+	docker rm -f postgres15
 	docker run --name postgres15 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -d postgres:latest
-
 createdb:
 	docker exec -it postgres15 createdb --username=root --owner=root bank_simulator
 
@@ -17,3 +18,5 @@ sqlc:
 	sqlc generate
 
 .PHONY: postgres createdb dropdb migrateup migratedown sqlc
+# run-in-sequence: postgres dropdb createdb migratedown migrateup
+
