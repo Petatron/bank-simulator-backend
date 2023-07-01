@@ -2,9 +2,10 @@ package db
 
 import (
 	"context"
+	"testing"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"testing"
 )
 
 func TestSuite(t *testing.T) {
@@ -39,5 +40,28 @@ var _ = Describe("Operation", func() {
 			Expect(account.CreatedAt).NotTo(BeZero())
 		})
 
+		It("Test DeleteAccountParams", func() {
+			// Create a new account
+			testAccount := CreateAccountParams{
+				Owner:    "1",
+				Balance:  100,
+				Currency: "USD",
+			}
+
+			account, err := testQueries.CreateAccount(context.Background(), testAccount)
+			Expect(err).To(BeNil())
+			Expect(account).NotTo(BeNil())
+
+			deleteAccountId := account.ID
+
+			// Delete the account
+			err = testQueries.DeleteAccount(context.Background(), deleteAccountId)
+			Expect(err).To(BeNil())
+
+			// Getting deleted account should get error
+			_, err = testQueries.GetAccount(context.Background(), deleteAccountId)
+			Expect(err).NotTo(BeNil())
+
+		})
 	})
 })
