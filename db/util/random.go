@@ -11,15 +11,15 @@ var nameList = []string{"John", "Jane", "Joe", "Jill", "Jack"}
 var currencyList = []string{"USD", "EUR", "CAD", "CNY", "JPY"}
 
 // By default, the random number generate number between [1, 1000]
-func GetRandomInt() int {
-	return 1 + rand.Intn(1000)
+func GetRandomInt() int64 {
+	return rand.Int63n(1000) + 1
 }
 
-func GetRandomIntWithRange(min, max int) int {
-	return min + rand.Intn(max-min)
+func GetRandomIntWithRange(min, max int64) int64 {
+	return rand.Int63n(max-min) + min
 }
 
-func GetRandomStringWithLength(length int) string {
+func GetRandomStringWithLength(length int64) string {
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 	b := make([]rune, length)

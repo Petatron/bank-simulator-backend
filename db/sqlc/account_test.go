@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/Petatron/bank-simulator-backend/db/util"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -25,10 +26,13 @@ var _ = Describe("Operation", func() {
 
 	Context("SQL operations", func() {
 		It("Test CreateAccountParams", func() {
+			testOwnerName := util.GetRandomOwnerName()
+			testBalance := util.GetRandomInt()
+			testCurrency := util.GetRandomCurrency()
 			arg := CreateAccountParams{
-				Owner:    "1",
-				Balance:  100,
-				Currency: "USD",
+				Owner:    testOwnerName,
+				Balance:  testBalance,
+				Currency: testCurrency,
 			}
 
 			account, err := testQueries.CreateAccount(context.Background(), arg)
@@ -43,10 +47,13 @@ var _ = Describe("Operation", func() {
 
 	Context("SQL operations", func() {
 		It("Test GetAccount", func() {
+			testOwnerName := util.GetRandomOwnerName()
+			testBalance := util.GetRandomInt()
+			testCurrency := util.GetRandomCurrency()
 			arg := CreateAccountParams{
-				Owner:    "1",
-				Balance:  100,
-				Currency: "USD",
+				Owner:    testOwnerName,
+				Balance:  testBalance,
+				Currency: testCurrency,
 			}
 
 			account, err := testQueries.CreateAccount(context.Background(), arg)
@@ -69,10 +76,13 @@ var _ = Describe("Operation", func() {
 
 	Context("SQL operations", func() {
 		It("Test UpdateAccount", func() {
+			testOwnerName := util.GetRandomOwnerName()
+			testBalance := util.GetRandomInt()
+			testCurrency := util.GetRandomCurrency()
 			arg := CreateAccountParams{
-				Owner:    "KGB",
-				Balance:  100,
-				Currency: "USD",
+				Owner:    testOwnerName,
+				Balance:  testBalance,
+				Currency: testCurrency,
 			}
 
 			account, err := testQueries.CreateAccount(context.Background(), arg)
@@ -83,9 +93,10 @@ var _ = Describe("Operation", func() {
 			Expect(account.ID).NotTo(BeZero())
 			Expect(account.CreatedAt).NotTo(BeZero())
 
+			testAmountForUpdate := util.GetRandomInt()
 			updateArg := UpdateAccountParams{
 				ID:      account.ID,
-				Balance: 200,
+				Balance: testAmountForUpdate,
 			}
 
 			updateAccount, err := testQueries.UpdateAccount(context.Background(), updateArg)
@@ -96,16 +107,19 @@ var _ = Describe("Operation", func() {
 
 	Context("SQL operations", func() {
 		It("Test ListAccounts", func() {
+			testOwnerName := util.GetRandomOwnerName()
+			testBalance := util.GetRandomInt()
+			testCurrency := util.GetRandomCurrency()
 			arg1 := ListAccountsParams{
-				Owner:  "CIA",
+				Owner:  testOwnerName,
 				Limit:  2,
 				Offset: 0,
 			}
 
 			arg2 := CreateAccountParams{
-				Owner:    "CIA",
-				Balance:  100,
-				Currency: "USD",
+				Owner:    testOwnerName,
+				Balance:  testBalance,
+				Currency: testCurrency,
 			}
 
 			testAccount, err := testQueries.CreateAccount(context.Background(), arg2)
@@ -119,22 +133,22 @@ var _ = Describe("Operation", func() {
 		})
 
 		It("Test DeleteAccountParams", func() {
-			// Create a new account
+			testOwnerName := util.GetRandomOwnerName()
+			testBalance := util.GetRandomInt()
+			testCurrency := util.GetRandomCurrency()
 			testAccount := CreateAccountParams{
-				Owner:    "1",
-				Balance:  100,
-				Currency: "USD",
+				Owner:    testOwnerName,
+				Balance:  testBalance,
+				Currency: testCurrency,
 			}
 
 			account, err := testQueries.CreateAccount(context.Background(), testAccount)
 			Expect(err).To(BeNil())
 			Expect(account).NotTo(BeNil())
 
-			// Delete the account
 			err = testQueries.DeleteAccount(context.Background(), account.ID)
 			Expect(err).To(BeNil())
 
-			// Getting deleted account should get error
 			_, err = testQueries.GetAccount(context.Background(), account.ID)
 			Expect(err).NotTo(BeNil())
 
@@ -143,10 +157,13 @@ var _ = Describe("Operation", func() {
 
 	Context("SQL operations", func() {
 		It("Test GetAccountForUpdate", func() {
+			testOwnerName := util.GetRandomOwnerName()
+			testBalance := util.GetRandomInt()
+			testCurrency := util.GetRandomCurrency()
 			arg := CreateAccountParams{
-				Owner:    "1",
-				Balance:  100,
-				Currency: "USD",
+				Owner:    testOwnerName,
+				Balance:  testBalance,
+				Currency: testCurrency,
 			}
 
 			account, err := testQueries.CreateAccount(context.Background(), arg)
@@ -169,10 +186,13 @@ var _ = Describe("Operation", func() {
 
 	Context("SQL operations", func() {
 		It("Test AddAccountBalance", func() {
+			testOwnerName := util.GetRandomOwnerName()
+			testBalance := util.GetRandomInt()
+			testCurrency := util.GetRandomCurrency()
 			testAccount := CreateAccountParams{
-				Owner:    "1",
-				Balance:  100,
-				Currency: "USD",
+				Owner:    testOwnerName,
+				Balance:  testBalance,
+				Currency: testCurrency,
 			}
 
 			account, err := testQueries.CreateAccount(context.Background(), testAccount)
@@ -183,9 +203,10 @@ var _ = Describe("Operation", func() {
 			Expect(account.ID).NotTo(BeZero())
 			Expect(account.CreatedAt).NotTo(BeZero())
 
+			testAmountForUpdate := util.GetRandomInt()
 			addAccountBalanceArg := AddAccountBalanceParams{
 				ID:     account.ID,
-				Amount: 100,
+				Amount: testAmountForUpdate,
 			}
 
 			updatedAccount, err := testQueries.AddAccountBalance(context.Background(), addAccountBalanceArg)
