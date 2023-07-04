@@ -20,7 +20,7 @@ var _ = Describe("Operation", func() {
 
 	Context("Util operations", func() {
 		It("Test GetRandomInt", func() {
-			testNumber := getRandomInt()
+			testNumber := GetRandomInt()
 			Expect(testNumber).NotTo(BeNil())
 			Expect(testNumber).NotTo(Equal(0))
 		})
@@ -28,7 +28,7 @@ var _ = Describe("Operation", func() {
 
 	Context("Util operations", func() {
 		It("Test GetRandomIntWithRange", func() {
-			testNumber := getRandomIntWithRange(1, 99)
+			testNumber := GetRandomIntWithRange(1, 99)
 			Expect(testNumber).To(BeNumerically(">=", 1))
 			Expect(testNumber).To(BeNumerically("<=", 99))
 		})
@@ -36,7 +36,7 @@ var _ = Describe("Operation", func() {
 
 	Context("Util operations", func() {
 		It("Test GetRandomStringWithLength", func() {
-			testString := getRandomStringWithLength(5)
+			testString := GetRandomStringWithLength(5)
 			Expect(testString).NotTo(Equal(""))
 			Expect(len(testString)).To(Equal(5))
 		})
@@ -44,7 +44,7 @@ var _ = Describe("Operation", func() {
 
 	Context("Util operations", func() {
 		It("Test GetRandomName", func() {
-			testRandomOwnerName := getRandomOwnerName()
+			testRandomOwnerName := GetRandomOwnerName()
 			Expect(testRandomOwnerName).NotTo(BeNil())
 			Expect(testRandomOwnerName).NotTo(Equal(""))
 		})
@@ -52,7 +52,7 @@ var _ = Describe("Operation", func() {
 
 	Context("Util operations", func() {
 		It("Test GetRandomCurrency", func() {
-			testCurrency := getRandomCurrency()
+			testCurrency := GetRandomCurrency()
 			Expect(testCurrency).NotTo(BeNil())
 			Expect(testCurrency).NotTo(Equal(""))
 		})
