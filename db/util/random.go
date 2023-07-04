@@ -11,15 +11,15 @@ var nameList = []string{"John", "Jane", "Joe", "Jill", "Jack"}
 var currencyList = []string{"USD", "EUR", "CAD", "CNY", "JPY"}
 
 // By default, the random number generate number between [1, 1000]
-func getRandomInt() int {
+func GetRandomInt() int {
 	return 1 + rand.Intn(1000)
 }
 
-func getRandomIntWithRange(min, max int) int {
+func GetRandomIntWithRange(min, max int) int {
 	return min + rand.Intn(max-min)
 }
 
-func getRandomStringWithLength(length int) string {
+func GetRandomStringWithLength(length int) string {
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 	b := make([]rune, length)
@@ -30,10 +30,10 @@ func getRandomStringWithLength(length int) string {
 	return string(b)
 }
 
-func getRandomOwnerName() string {
+func GetRandomOwnerName() string {
 	return nameList[rand.Intn(len(nameList))]
 }
 
-func getRandomCurrency() string {
+func GetRandomCurrency() string {
 	return currencyList[rand.Intn(len(currencyList))]
 }
