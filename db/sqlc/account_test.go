@@ -193,5 +193,4 @@ var _ = Describe("Operation", func() {
 			Expect(updatedAccount.Balance).To(Equal(testAccount.Balance + addAccountBalanceArg.Amount))
 		})
 	})
-
 })
