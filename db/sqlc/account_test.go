@@ -167,4 +167,31 @@ var _ = Describe("Operation", func() {
 		})
 	})
 
+	Context("SQL operations", func() {
+		It("Test AddAccountBalance", func() {
+			testAccount := CreateAccountParams{
+				Owner:    "1",
+				Balance:  100,
+				Currency: "USD",
+			}
+
+			account, err := testQueries.CreateAccount(context.Background(), testAccount)
+			Expect(err).To(BeNil())
+			Expect(account.Balance).To(Equal(testAccount.Balance))
+			Expect(account.Currency).To(Equal(testAccount.Currency))
+			Expect(account.Owner).To(Equal(testAccount.Owner))
+			Expect(account.ID).NotTo(BeZero())
+			Expect(account.CreatedAt).NotTo(BeZero())
+
+			addAccountBalanceArg := AddAccountBalanceParams{
+				ID:     account.ID,
+				Amount: 100,
+			}
+
+			updatedAccount, err := testQueries.AddAccountBalance(context.Background(), addAccountBalanceArg)
+			Expect(err).To(BeNil())
+			Expect(updatedAccount.Balance).To(Equal(testAccount.Balance + addAccountBalanceArg.Amount))
+		})
+	})
+
 })
