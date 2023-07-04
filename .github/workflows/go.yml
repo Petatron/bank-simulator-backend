@@ -55,3 +55,11 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+
+    - name: Run coverage
+      run: go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
