@@ -4,36 +4,42 @@ import (
 	"math/rand"
 )
 
-// List of owners names for testing
-var nameList = []string{"John", "Jane", "Joe", "Jill", "Jack"}
+const alphabet = "abcdefghijklmnopqrstuvwxyz"
 
-// List of currency code for testing
-var currencyList = []string{"USD", "EUR", "CAD", "CNY", "JPY"}
-
-// By default, the random number generate number between [1, 1000]
+// GetRandomInt generate a random integer number
 func GetRandomInt() int64 {
-	return rand.Int63n(1000) + 1
+	return rand.Int63()
 }
 
+// GetRandomIntWithRange generate a random integer number with range [min, max)
 func GetRandomIntWithRange(min, max int64) int64 {
 	return rand.Int63n(max-min) + min
 }
 
-func GetRandomStringWithLength(length int64) string {
-	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+// GetRandomMoneyAmount generate a random money amount with range [1, 1000)
+func GetRandomMoneyAmount() int64 {
+	return GetRandomIntWithRange(1, 1000)
+}
 
-	b := make([]rune, length)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+// GetRandomStringWithLength generate a random string from alphabet with given length
+func GetRandomStringWithLength(length int) string {
+	tempList := make([]byte, length)
+	for i := range tempList {
+		tempList[i] = alphabet[rand.Intn(len(alphabet))]
 	}
-
-	return string(b)
+	return string(tempList)
 }
 
+// GetRandomOwnerName generate a random owner name
 func GetRandomOwnerName() string {
-	return nameList[rand.Intn(len(nameList))]
+	// Get a random length from 3 to 5
+	length := rand.Intn(3) + 3
+	return GetRandomStringWithLength(length)
 }
 
+// GetRandomCurrency generate a random currency code
 func GetRandomCurrency() string {
+	// List of currency code for testing
+	currencyList := []string{"USD", "EUR", "CAD", "CNY", "JPY"}
 	return currencyList[rand.Intn(len(currencyList))]
 }

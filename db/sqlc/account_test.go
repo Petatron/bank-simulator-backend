@@ -27,7 +27,7 @@ var _ = Describe("Operation", func() {
 	Context("SQL operations", func() {
 		It("Test CreateAccountParams", func() {
 			testOwnerName := util.GetRandomOwnerName()
-			testBalance := util.GetRandomInt()
+			testBalance := util.GetRandomMoneyAmount()
 			testCurrency := util.GetRandomCurrency()
 			arg := CreateAccountParams{
 				Owner:    testOwnerName,
@@ -48,7 +48,7 @@ var _ = Describe("Operation", func() {
 	Context("SQL operations", func() {
 		It("Test GetAccount", func() {
 			testOwnerName := util.GetRandomOwnerName()
-			testBalance := util.GetRandomInt()
+			testBalance := util.GetRandomMoneyAmount()
 			testCurrency := util.GetRandomCurrency()
 			arg := CreateAccountParams{
 				Owner:    testOwnerName,
@@ -77,7 +77,7 @@ var _ = Describe("Operation", func() {
 	Context("SQL operations", func() {
 		It("Test UpdateAccount", func() {
 			testOwnerName := util.GetRandomOwnerName()
-			testBalance := util.GetRandomInt()
+			testBalance := util.GetRandomMoneyAmount()
 			testCurrency := util.GetRandomCurrency()
 			arg := CreateAccountParams{
 				Owner:    testOwnerName,
@@ -93,7 +93,7 @@ var _ = Describe("Operation", func() {
 			Expect(account.ID).NotTo(BeZero())
 			Expect(account.CreatedAt).NotTo(BeZero())
 
-			testAmountForUpdate := util.GetRandomInt()
+			testAmountForUpdate := util.GetRandomMoneyAmount()
 			updateArg := UpdateAccountParams{
 				ID:      account.ID,
 				Balance: testAmountForUpdate,
@@ -108,7 +108,7 @@ var _ = Describe("Operation", func() {
 	Context("SQL operations", func() {
 		It("Test ListAccounts", func() {
 			testOwnerName := util.GetRandomOwnerName()
-			testBalance := util.GetRandomInt()
+			testBalance := util.GetRandomMoneyAmount()
 			testCurrency := util.GetRandomCurrency()
 			arg1 := ListAccountsParams{
 				Owner:  testOwnerName,
@@ -134,7 +134,7 @@ var _ = Describe("Operation", func() {
 
 		It("Test DeleteAccountParams", func() {
 			testOwnerName := util.GetRandomOwnerName()
-			testBalance := util.GetRandomInt()
+			testBalance := util.GetRandomMoneyAmount()
 			testCurrency := util.GetRandomCurrency()
 			testAccount := CreateAccountParams{
 				Owner:    testOwnerName,
@@ -158,7 +158,7 @@ var _ = Describe("Operation", func() {
 	Context("SQL operations", func() {
 		It("Test GetAccountForUpdate", func() {
 			testOwnerName := util.GetRandomOwnerName()
-			testBalance := util.GetRandomInt()
+			testBalance := util.GetRandomMoneyAmount()
 			testCurrency := util.GetRandomCurrency()
 			arg := CreateAccountParams{
 				Owner:    testOwnerName,
@@ -187,7 +187,7 @@ var _ = Describe("Operation", func() {
 	Context("SQL operations", func() {
 		It("Test AddAccountBalance", func() {
 			testOwnerName := util.GetRandomOwnerName()
-			testBalance := util.GetRandomInt()
+			testBalance := util.GetRandomMoneyAmount()
 			testCurrency := util.GetRandomCurrency()
 			testAccount := CreateAccountParams{
 				Owner:    testOwnerName,
@@ -203,7 +203,7 @@ var _ = Describe("Operation", func() {
 			Expect(account.ID).NotTo(BeZero())
 			Expect(account.CreatedAt).NotTo(BeZero())
 
-			testAmountForUpdate := util.GetRandomInt()
+			testAmountForUpdate := util.GetRandomMoneyAmount()
 			addAccountBalanceArg := AddAccountBalanceParams{
 				ID:     account.ID,
 				Amount: testAmountForUpdate,
