@@ -9,7 +9,7 @@ import (
 
 func TestSuite(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Unit Test for DB Operations")
+	RunSpecs(t, "Unit Test for Random Util Operations")
 }
 
 var _ = Describe("Operation", func() {
