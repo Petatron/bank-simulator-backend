@@ -7,15 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Operation", func() {
-
-	BeforeEach(func() {
-
-	})
-
-	AfterEach(func() {
-
-	})
+var _ = Describe("SQL Transfer Operations", func() {
 
 	Context("Transfer Operations", func() {
 		It("Test CreateTransfer", func() {
