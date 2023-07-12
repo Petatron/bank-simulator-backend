@@ -1,6 +1,8 @@
 # bank-simulator-backend
-[![codecov](https://codecov.io/gh/{{REPOSITORY}}/branch/main/graph/badge.svg)](https://codecov.io/gh/{{REPOSITORY}})
-
+[![codecov](https://codecov.io/github/Petatron/bank-simulator-backend/branch/main/graph/badge.svg?token=SiNvQCTzQo)](https://codecov.io/github/Petatron/bank-simulator-backend)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Petatron/bank-simulator-backend)](https://goreportcard.com/report/github.com/Petatron/bank-simulator-backend)
+[![Go Reference](https://pkg.go.dev/badge/github.com/Petatron/bank-simulator-backend.svg)](https://pkg.go.dev/github.com/Petatron/bank-simulator-backend)
+![codecov](https://codecov.io/github/Petatron/bank-simulator-backend/branch/main/graphs/sunburst.svg?token=SiNvQCTzQo)
 This project aimed to build a bank simulator system. The system features include:
 
 - User account CUDR.
