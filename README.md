@@ -1,4 +1,5 @@
 # bank-simulator-backend
+[![codecov](https://codecov.io/gh/{{REPOSITORY}}/branch/main/graph/badge.svg)](https://codecov.io/gh/{{REPOSITORY}})
 
 This project aimed to build a bank simulator system. The system features include:
 
