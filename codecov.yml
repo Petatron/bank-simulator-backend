@@ -1,0 +1,28 @@
+github_checks:
+  annotations: true
+
+codecov:
+    notify:
+        require_ci_to_pass: yes
+
+coverage:
+    precision: 2
+    round: down
+    status:
+      project:
+        default:
+          # basic
+          target: 60%
+          threshold: 1%
+          base: 60%
+          if_ci_failed: error #success, failure, error, ignore
+          removed_code_behavior: off
+
+      patch:
+        default:
+          # basic
+          target: 60%
+          threshold: 1%
+          base: 60%
+          if_ci_failed: error #success, failure, error, ignore
+          removed_code_behavior: off
