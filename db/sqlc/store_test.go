@@ -25,7 +25,7 @@ func createRandomAccount() Account {
 
 var _ = Describe("Operation", func() {
 	Context("DB operations", func() {
-		It("Test DB operations", func() {
+		FIt("Test DB operations", func() {
 			store := NewStore(testDB)
 			account1 := createRandomAccount()
 			account2 := createRandomAccount()
