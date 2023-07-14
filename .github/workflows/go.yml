@@ -54,7 +54,7 @@ jobs:
       run: go build -v ./...
     
     - name: Debugging with ssh
-      uses: lhotari/action-upterm@v1
+      uses: mxschmitt/action-tmate@v3.16
 
     - name: Test
       run: go test -v -race ./...
