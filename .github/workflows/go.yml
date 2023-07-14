@@ -36,8 +36,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
+    - name: Debugging with tmate
+      uses: mxschmitt/action-tmate@v3.16
 
     - name: Install golang-migrate
       run: |
