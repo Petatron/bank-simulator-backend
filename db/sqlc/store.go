@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"fmt"
 )
 
 // Store provides all functions to execute db queries and transactions
@@ -31,7 +32,7 @@ func (store *Store) ExecTx(ctx context.Context, fn func(*Queries) error) error {
 	err = fn(q)
 	if err != nil {
 		if rbErr := tx.Rollback(); rbErr != nil {
-			return rbErr
+			return fmt.Errorf("tx err: %v, rb err: %v", err, rbErr)
 		}
 		return err
 	}
@@ -85,6 +86,36 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 		result.ToEntry, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: arg.ToAccountID,
 			Amount:    arg.Amount,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		// Update accounts' balance
+		account1, err := q.GetAccountForUpdate(ctx, arg.FromAccountID)
+		if err != nil {
+			return err
+		}
+
+		result.FromAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
+			ID:      arg.FromAccountID,
+			Balance: account1.Balance - arg.Amount,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		account2, err := q.GetAccountForUpdate(ctx, arg.ToAccountID)
+
+		if err != nil {
+			return err
+		}
+
+		result.ToAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
+			ID:      arg.ToAccountID,
+			Balance: account2.Balance + arg.Amount,
 		})
 
 		if err != nil {
