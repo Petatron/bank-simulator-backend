@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+
 	"github.com/Petatron/bank-simulator-backend/db/util"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

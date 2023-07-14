@@ -3,10 +3,10 @@ package db
 import (
 	"context"
 	"fmt"
+
 	"github.com/Petatron/bank-simulator-backend/db/util"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"testing"
 )
 
 func createRandomAccount() Account {
@@ -21,11 +21,6 @@ func createRandomAccount() Account {
 
 	account, _ := testQueries.CreateAccount(context.Background(), arg)
 	return account
-}
-
-func TestDBTrans(t *testing.T) {
-	RegisterFailHandler(Fail)
-	defer GinkgoRecover()
 }
 
 var _ = Describe("Operation", func() {
