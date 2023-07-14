@@ -52,6 +52,9 @@ jobs:
 
     - name: Build
       run: go build -v ./...
+    
+    - name: Debugging with ssh
+      uses: lhotari/action-upterm@v1
 
     - name: Test
       run: go test -v -race ./...
