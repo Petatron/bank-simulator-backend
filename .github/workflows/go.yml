@@ -55,9 +55,6 @@ jobs:
 
     - name: Test
       run: go test -v ./...
-      
-    - name: Debugging with tmate
-      uses: mxschmitt/action-tmate@v3.16
 
     - name: Run coverage
       run: go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic
