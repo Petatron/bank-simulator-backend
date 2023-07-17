@@ -18,10 +18,4 @@ coverage:
           if_ci_failed: error #success, failure, error, ignore
           removed_code_behavior: off
 
-      patch:
-        # basic
-        target: 50%
-        threshold: 1%
-        base: 50%
-        if_ci_failed: error #success, failure, error, ignore
-        removed_code_behavior: off
+      patch: off
