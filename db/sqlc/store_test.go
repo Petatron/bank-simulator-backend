@@ -79,6 +79,9 @@ var _ = Describe("Operation", func() {
 				Expect(fromEntry.ID).NotTo(Equal(0))
 				Expect(fromEntry.CreatedAt).NotTo(Equal(0))
 
+				_, err = store.GetEntry(context.Background(), fromEntry.ID)
+				Expect(err).To(BeNil())
+
 				toEntry := result.ToEntry
 				Expect(toEntry).NotTo(BeNil())
 				Expect(toEntry.AccountID).To(Equal(account2.ID))
@@ -86,7 +89,7 @@ var _ = Describe("Operation", func() {
 				Expect(toEntry.ID).NotTo(Equal(0))
 				Expect(toEntry.CreatedAt).NotTo(Equal(0))
 
-				_, err = store.GetEntry(context.Background(), transfer.ID)
+				_, err = store.GetEntry(context.Background(), toEntry.ID)
 				Expect(err).To(BeNil())
 
 				// Check accounts
