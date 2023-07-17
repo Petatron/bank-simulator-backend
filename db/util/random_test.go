@@ -55,6 +55,9 @@ var _ = Describe("Operation", func() {
 			testCurrency := GetRandomCurrency()
 			Expect(testCurrency).NotTo(BeNil())
 			Expect(testCurrency).NotTo(Equal(""))
+
+			random := GetRandomInt()
+			Expect(random).NotTo(BeNil())
 		})
 	})
 })
