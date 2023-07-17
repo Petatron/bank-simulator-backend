@@ -52,9 +52,6 @@ jobs:
 
     - name: Build
       run: go build -v ./...
-    
-    - name: Debugging with ssh
-      uses: mxschmitt/action-tmate@v3.16
 
     - name: Test
       run: go test -v -race ./...
