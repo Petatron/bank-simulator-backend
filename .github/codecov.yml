@@ -19,7 +19,7 @@ coverage:
         removed_code_behavior: off
     patch:
       default:
-        enabled: off
+        enabled: yes
         # basic
         target: 60%
         threshold: 1%
