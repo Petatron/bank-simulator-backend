@@ -17,7 +17,6 @@ coverage:
         base: 60%
         if_ci_failed: error #success, failure, error, ignore
         removed_code_behavior: off
-
     patch:
       default:
         # basic
