@@ -2,13 +2,14 @@ package db
 
 import (
 	"context"
+	"fmt"
+
 	"github.com/Petatron/bank-simulator-backend/db/util"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"testing"
 )
 
-func createRandomAccount(t *testing.T) Account {
+func createRandomAccount() Account {
 	testOwnerName := util.GetRandomOwnerName()
 	testBalance := util.GetRandomMoneyAmount()
 	testCurrency := util.GetRandomCurrency()
@@ -22,97 +23,108 @@ func createRandomAccount(t *testing.T) Account {
 	return account
 }
 
-func TestDBTrans(t *testing.T) {
-	RegisterFailHandler(Fail)
-	defer GinkgoRecover()
+var _ = Describe("Operation", func() {
+	Context("DB operations", func() {
+		It("Test DB operations", func() {
+			store := NewStore(testDB)
+			account1 := createRandomAccount()
+			account2 := createRandomAccount()
+			fmt.Println(">>> Before transfer, amount for two accounts: ", account1.Balance, account2.Balance)
 
-	store := NewStore(testDB)
-	account1 := createRandomAccount(t)
-	account2 := createRandomAccount(t)
+			n := 5
+			amount := int64(10)
 
-	n := 5
-	amount := util.GetRandomMoneyAmount()
+			errs := make(chan error)
+			results := make(chan TransferTxResult)
 
-	errs := make(chan error)
-	results := make(chan TransferTxResult)
+			for i := 0; i < n; i++ {
+				go func() {
+					result, err := store.TransferTx(context.Background(), TransferTxParams{
+						FromAccountID: account1.ID,
+						ToAccountID:   account2.ID,
+						Amount:        amount,
+					})
 
-	for i := 0; i < n; i++ {
-		go func() {
-			result, err := store.TransferTx(context.Background(), TransferTxParams{
-				FromAccountID: account1.ID,
-				ToAccountID:   account2.ID,
-				Amount:        amount,
-			})
-
-			if err != nil {
-				t.Errorf("Error while creating entry: %v", err)
+					errs <- err
+					results <- result
+				}()
 			}
 
-			errs <- err
-			results <- result
-		}()
-	}
+			existed := make(map[int]bool)
+			// Results check
+			for i := 0; i < n; i++ {
+				err := <-errs
+				result := <-results
+				Expect(err).To(BeNil())
+				Expect(result).NotTo(BeNil())
 
-	// Results check
-	for i := 0; i < n; i++ {
-		err := <-errs
-		result := <-results
+				transfer := result.Transfer
 
-		Expect(err).To(BeNil())
-		Expect(result).NotTo(BeNil())
-		Expect(result.FromAccount).To(Equal(amount))
-		Expect(result.ToAccount).To(Equal(amount))
+				// Check transfer
+				Expect(transfer).NotTo(BeNil())
+				Expect(transfer.FromAccountID).To(Equal(account1.ID))
+				Expect(transfer.ToAccountID).To(Equal(account2.ID))
+				Expect(transfer.ID).NotTo(Equal(0))
+				Expect(transfer.CreatedAt).NotTo(Equal(0))
+				Expect(amount).To(Equal(transfer.Amount))
 
-		// Check transfer
-		transfer := result.Transfer
-		Expect(transfer).NotTo(BeNil())
-		Expect(transfer.Amount).To(Equal(amount))
-		Expect(transfer.FromAccountID).To(Equal(account1.ID))
-		Expect(transfer.ToAccountID).To(Equal(account2.ID))
-		Expect(transfer.ID).NotTo(Equal(0))
-		Expect(transfer.CreatedAt).NotTo(Equal(0))
-		Expect(amount).To(Equal(transfer.Amount))
+				_, err = store.GetTransfer(context.Background(), transfer.ID)
+				Expect(err).To(BeNil())
 
-		_, err = store.GetTransfer(context.Background(), account1.ID)
-		Expect(err).To(BeNil())
+				// Check Entries
+				fromEntry := result.FromEntry
+				Expect(fromEntry).NotTo(BeNil())
+				Expect(fromEntry.AccountID).To(Equal(account1.ID))
+				Expect(fromEntry.Amount).To(Equal(-amount))
+				Expect(fromEntry.ID).NotTo(Equal(0))
+				Expect(fromEntry.CreatedAt).NotTo(Equal(0))
 
-		// Check Entries
-		fromEntry := result.FromEntry
-		Expect(fromEntry).NotTo(BeNil())
-		Expect(fromEntry.AccountID).To(Equal(account1.ID))
-		Expect(fromEntry.Amount).To(Equal(-amount))
-		Expect(fromEntry.ID).NotTo(Equal(0))
-		Expect(fromEntry.CreatedAt).NotTo(Equal(0))
+				_, err = store.GetEntry(context.Background(), fromEntry.ID)
+				Expect(err).To(BeNil())
 
-		toEntry := result.ToEntry
-		Expect(toEntry).NotTo(BeNil())
-		Expect(toEntry.AccountID).To(Equal(account2.ID))
-		Expect(toEntry.Amount).To(Equal(amount))
-		Expect(toEntry.ID).NotTo(Equal(0))
-		Expect(toEntry.CreatedAt).NotTo(Equal(0))
+				toEntry := result.ToEntry
+				Expect(toEntry).NotTo(BeNil())
+				Expect(toEntry.AccountID).To(Equal(account2.ID))
+				Expect(toEntry.Amount).To(Equal(amount))
+				Expect(toEntry.ID).NotTo(Equal(0))
+				Expect(toEntry.CreatedAt).NotTo(Equal(0))
 
-		_, err = store.GetEntry(context.Background(), account1.ID)
-		Expect(err).To(BeNil())
+				_, err = store.GetEntry(context.Background(), toEntry.ID)
+				Expect(err).To(BeNil())
 
-	}
-}
+				// Check accounts
+				fromAccount := result.FromAccount
+				Expect(fromAccount).NotTo(BeNil())
+				Expect(fromAccount.ID).To(Equal(account1.ID))
 
-func TestDBT(t *testing.T) {
-	RegisterFailHandler(Fail)
-	defer GinkgoRecover()
+				toAccount := result.ToAccount
+				Expect(toAccount).NotTo(BeNil())
+				Expect(toAccount.ID).To(Equal(account2.ID))
 
-	store := NewStore(testDB)
-	account1 := createRandomAccount(t)
-	//account2 := createRandomAccount(t)
+				// Check account balance
+				fmt.Println(">>> After transfer, amount for two accounts: ", fromAccount.Balance, toAccount.Balance)
+				diff1 := account1.Balance - fromAccount.Balance
+				diff2 := toAccount.Balance - account2.Balance
+				Expect(diff1).To(Equal(diff2))
+				Expect(diff1).To(BeNumerically(">", 0))
+				Expect(diff1 % amount).To(Equal(int64(0)))
 
-	var amount = int64(-1000)
-	_, err := store.TransferTx(context.Background(), TransferTxParams{
-		FromAccountID: account1.ID,
-		ToAccountID:   account1.ID,
-		Amount:        amount,
+				k := int(diff1 / amount)
+				Expect(k >= 1 && k <= n).To(BeTrue())
+				Expect(existed[k]).To(BeFalse())
+				existed[k] = true
+			}
+
+			// Check the final account balance
+			updateAccount1, err := testQueries.GetAccount(context.Background(), account1.ID)
+			Expect(err).To(BeNil())
+
+			updateAccount2, err := testQueries.GetAccount(context.Background(), account2.ID)
+			Expect(err).To(BeNil())
+
+			fmt.Println(">>> Final amount for two accounts: ", updateAccount1.Balance, updateAccount2.Balance)
+			Expect(updateAccount1.Balance).To(Equal(account1.Balance - int64(n)*amount))
+			Expect(updateAccount2.Balance).To(Equal(account2.Balance + int64(n)*amount))
+		})
 	})
-
-	if err != nil {
-		t.Errorf("Error while creating entry: %v", err)
-	}
-}
+})
