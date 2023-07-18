@@ -126,5 +126,53 @@ var _ = Describe("Operation", func() {
 			Expect(updateAccount1.Balance).To(Equal(account1.Balance - int64(n)*amount))
 			Expect(updateAccount2.Balance).To(Equal(account2.Balance + int64(n)*amount))
 		})
+
+		It("Test DB operations deadlock", func() {
+			store := NewStore(testDB)
+			account1 := createRandomAccount()
+			account2 := createRandomAccount()
+			fmt.Println(">>> Before transfer, amount for two accounts: ", account1.Balance, account2.Balance)
+
+			n := 10
+			amount := int64(10)
+			errs := make(chan error)
+
+			for i := 0; i < n; i++ {
+				fromAccountID := account1.ID
+				toAccountID := account2.ID
+
+				if i%2 == 1 {
+					fromAccountID = account2.ID
+					toAccountID = account1.ID
+				}
+
+				go func() {
+					_, err := store.TransferTx(context.Background(), TransferTxParams{
+						FromAccountID: fromAccountID,
+						ToAccountID:   toAccountID,
+						Amount:        amount,
+					})
+
+					errs <- err
+				}()
+			}
+
+			// Results check
+			for i := 0; i < n; i++ {
+				err := <-errs
+				Expect(err).To(BeNil())
+			}
+
+			// Check the final account balance
+			updateAccount1, err := testQueries.GetAccount(context.Background(), account1.ID)
+			Expect(err).To(BeNil())
+
+			updateAccount2, err := testQueries.GetAccount(context.Background(), account2.ID)
+			Expect(err).To(BeNil())
+
+			fmt.Println(">>> Final amount for two accounts: ", updateAccount1.Balance, updateAccount2.Balance)
+			Expect(updateAccount1.Balance).To(Equal(account1.Balance))
+			Expect(updateAccount2.Balance).To(Equal(account2.Balance))
+		})
 	})
 })
