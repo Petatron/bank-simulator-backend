@@ -13,17 +13,15 @@ coverage:
       default:
         enabled: yes
         # basic
-        target: 60
-        threshold: 0.1
-        base: 60
+        target: 60%
+        threshold: 1%
         if_ci_failed: error #success, failure, error, ignore
         removed_code_behavior: off
     patch:
       default:
         enabled: off
         # basic
-        target: 60
-        threshold: 0.1
-        base: 60
+        target: 60%
+        threshold: 1%
         if_ci_failed: error #success, failure, error, ignore
         removed_code_behavior: off
