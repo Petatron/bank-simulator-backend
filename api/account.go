@@ -7,14 +7,14 @@ import (
 )
 
 // createAccountRequest defines the body for createAccount API request
-type createAccount struct {
+type createAccountRequest struct {
 	Owner    string `json:"owner" binding:"required"`
-	Currency string `json:"currency" binding:"required, oneof=USD EUR CAD"`
+	Currency string `json:"currency" binding:"required,oneof=USD EUR CAD"`
 }
 
 // createAccount creates a new account
 func (server *Server) createAccount(ctx *gin.Context) {
-	var req createAccount
+	var req createAccountRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
