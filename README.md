@@ -70,3 +70,5 @@ How to use SQLc in project?
 ```bash
 make sqlc
 ```
+
+Version 1.0.1
