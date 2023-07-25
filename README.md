@@ -2,6 +2,7 @@
 [![codecov](https://codecov.io/github/Petatron/bank-simulator-backend/branch/main/graph/badge.svg?token=SiNvQCTzQo)](https://codecov.io/github/Petatron/bank-simulator-backend)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Petatron/bank-simulator-backend)](https://goreportcard.com/report/github.com/Petatron/bank-simulator-backend)
 [![Go Reference](https://pkg.go.dev/badge/github.com/Petatron/bank-simulator-backend.svg)](https://pkg.go.dev/github.com/Petatron/bank-simulator-backend)
+[![Build Status](https://dev.azure.com/Petatron/bank_simulator_backend/_apis/build/status%2FPetatron.bank-simulator-backend?branchName=main)](https://dev.azure.com/Petatron/bank_simulator_backend/_build/latest?definitionId=6&branchName=main)
 
 This project aimed to build a bank simulator system. The system features include:
 
