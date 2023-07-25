@@ -71,4 +71,4 @@ How to use SQLc in project?
 make sqlc
 ```
 
-Version 1.0.2
+Version 1.0.3
