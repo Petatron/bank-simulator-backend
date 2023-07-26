@@ -2,13 +2,14 @@ package util
 
 import "github.com/spf13/viper"
 
-// Config is the configuration for util package
+// Config defines the configuration structure for the application
 type Config struct {
 	DBDriver      string `mapstructure:"DB_DRIVER"`
 	DBSource      string `mapstructure:"DB_SOURCE"`
 	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
 }
 
+// LoadConfig loads the configuration from file and environment variables
 func LoadConfig(path string) (config Config, err error) {
 	viper.AddConfigPath(path)
 	viper.SetConfigName("app")
