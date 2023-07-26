@@ -62,15 +62,15 @@ func (server *Server) getAccount(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, account)
 }
 
-// listAccountsRequest defines the body for listAccounts API request
-type listAccountsRequest struct {
+// listAccountRequest defines the body for listAccounts API request
+type listAccountRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
-// listAccounts returns a list of accounts
-func (server *Server) listAccounts(ctx *gin.Context) {
-	var req listAccountsRequest
+// listAccount implements the API returns a list of accounts
+func (server *Server) listAccount(ctx *gin.Context) {
+	var req listAccountRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
