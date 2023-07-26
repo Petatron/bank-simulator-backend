@@ -111,7 +111,6 @@ var _ = Describe("Operation", func() {
 			testBalance := util.GetRandomMoneyAmount()
 			testCurrency := util.GetRandomCurrency()
 			arg1 := ListAccountsParams{
-				Owner:  testOwnerName,
 				Limit:  2,
 				Offset: 0,
 			}
