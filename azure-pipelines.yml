@@ -31,7 +31,10 @@ steps:
       echo "Start PostgreSQL"
       docker pull postgres:latest
       docker run --name postgres15 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -d postgres:latest
-      docker exec -it postgres15 createdb --username=root --owner=root bank_simulator
+      echo "Install wait-for-it"
+      git clone https://github.com/vishnubob/wait-for-it.git
+      echo "Wait for PostgreSQL to start and then create the database"
+      bash wait-for-it/wait-for-it.sh localhost:5432 --timeout=45 --strict -- echo "PostgreSQL started" && docker exec postgres15 createdb --username=root --owner=root bank_simulator
     displayName: 'Start PostgreSQL and Database'
 
   - script: |
