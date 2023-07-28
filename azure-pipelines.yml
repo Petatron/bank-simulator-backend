@@ -30,9 +30,11 @@ steps:
   - script: |
       echo "Start PostgreSQL"
       docker pull postgres:latest
+      echo "Create Docker network"
+      docker network create pgnet
       echo "Create initdb script"
       echo "CREATE USER root WITH PASSWORD 'password'; CREATE DATABASE bank_simulator OWNER root;" > init.sql
-      docker run --name postgres15 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -v $PWD/init.sql:/docker-entrypoint-initdb.d/init.sql -d postgres:latest
+      docker run --name postgres15 -p --network=pgnet -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -v $PWD/init.sql:/docker-entrypoint-initdb.d/init.sql -d postgres:latest
     displayName: 'Start PostgreSQL and Database'
 
   - script: |
@@ -54,7 +56,7 @@ steps:
       # Get the IP address of the Docker container
       POSTGRES_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' postgres15)
       echo "PostgreSQL IP address: $POSTGRES_IP"
-      migrate -path db/migration -database "postgresql://root:password@${POSTGRES_IP}:5432/bank_simulator?sslmode=disable" -verbose up
+      migrate -path db/migration -database "postgresql://root:password@postgres15:5432/bank_simulator?sslmode=disable" -verbose up
     displayName: 'Run migrations'
 
   - script: |
