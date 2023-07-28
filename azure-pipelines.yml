@@ -38,10 +38,8 @@ steps:
     displayName: 'Start PostgreSQL and Database'
 
   - script: |
-      echo "Install wait-for-it"
-      git clone https://github.com/vishnubob/wait-for-it.git
       echo "Wait for PostgreSQL to start"
-      bash wait-for-it/wait-for-it.sh localhost:5432 --timeout=60 --strict -- echo "PostgreSQL started"
+      sleep 20 # You can adjust this sleep duration
     displayName: 'Wait for PostgreSQL'
 
   - script: |
