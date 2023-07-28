@@ -4,18 +4,24 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+services:
+  postgres:
+    image: postgres:latest
+    options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    ports:
+      - 5432:5432
+    env:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: bank_simulator
+
 variables:
   goVersion: '1.20.1' # Go version
-  postgresPassword: 'password'
 
 steps:
   - task: GoTool@0
     inputs:
       version: $(goVersion)
-
-  - task: DockerInstaller@0
-    inputs:
-      dockerVersion: '19.03.5'
 
   - script: |
       echo "Check Go version"
@@ -28,31 +34,14 @@ steps:
     displayName: 'Fetch dependencies'
 
   - script: |
-      echo "Start PostgreSQL"
-      docker pull postgres:latest
-      echo "Create initdb script"
-      echo "CREATE USER root WITH PASSWORD 'password'; CREATE DATABASE bank_simulator OWNER root;" > init.sql
-      docker run --name postgres15 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -v $PWD/init.sql:/docker-entrypoint-initdb.d/init.sql -d postgres:latest
-    displayName: 'Start PostgreSQL and Database'
-
-  - script: |
-      echo "Wait for PostgreSQL to start"
-      sleep 20 # You can adjust this sleep duration
-    displayName: 'Wait for PostgreSQL'
-
-  - script: |
       echo "Install golang-migrate"
       curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz | tar xvz
       sudo mv migrate /usr/local/bin/migrate
     displayName: 'Install golang-migrate'
 
   - script: |
-      echo "Get PostgreSQL IP Address"
-      POSTGRES_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' postgres15)
-      echo "PostgreSQL IP address: $POSTGRES_IP"
-
       echo "Run Migrations"
-      migrate -path db/migration -database postgres://root:password@$POSTGRES_IP:5432/bank_simulator?sslmode=disable -verbose up
+      migrate -path db/migration -database postgres://root:password@localhost:5432/bank_simulator?sslmode=disable -verbose up
     displayName: 'Run migrations'
 
   - script: |
