@@ -34,7 +34,7 @@ steps:
       docker network create pgnet
       echo "Create initdb script"
       echo "CREATE USER root WITH PASSWORD 'password'; CREATE DATABASE bank_simulator OWNER root;" > init.sql
-      docker run --name postgres15 -p --network=pgnet -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -v $PWD/init.sql:/docker-entrypoint-initdb.d/init.sql -d postgres:latest
+      docker run --name postgres15 --network=pgnet -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -v $PWD/init.sql:/docker-entrypoint-initdb.d/init.sql -d postgres:latest
     displayName: 'Start PostgreSQL and Database'
 
   - script: |
