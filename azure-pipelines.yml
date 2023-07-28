@@ -36,6 +36,13 @@ steps:
     displayName: 'Start PostgreSQL and Database'
 
   - script: |
+      echo "Install wait-for-it"
+      git clone https://github.com/vishnubob/wait-for-it.git
+      echo "Wait for PostgreSQL to start"
+      bash wait-for-it/wait-for-it.sh localhost:5432 --timeout=60 --strict -- echo "PostgreSQL started"
+    displayName: 'Wait for PostgreSQL'
+
+  - script: |
       echo "Install golang-migrate"
       curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz | tar xvz
       sudo mv migrate /usr/local/bin/migrate
