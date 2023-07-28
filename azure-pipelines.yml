@@ -54,7 +54,7 @@ steps:
       # Get the IP address of the Docker container
       POSTGRES_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' postgres15)
       echo "PostgreSQL IP address: $POSTGRES_IP"
-      migrate -path db/migration -database "postgresql://root:password@postgres15:5432/bank_simulator?sslmode=disable" -verbose up
+      migrate -path db/migration -database postgres://root:password@postgres15:5432/bank_simulator?sslmode=disable -verbose up
     displayName: 'Run migrations'
 
   - script: |
