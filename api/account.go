@@ -2,9 +2,10 @@ package api
 
 import (
 	"database/sql"
+	"net/http"
+
 	db "github.com/Petatron/bank-simulator-backend/db/sqlc"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 // createAccountRequest defines the body for createAccount API request
@@ -88,4 +89,26 @@ func (server *Server) listAccount(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, accounts)
+}
+
+// deleteAccountRequest defines the body for deleteAccount API request
+type deleteAccountRequest struct {
+	ID int64 `uri:"id" binding:"required,min=1"`
+}
+
+// deleteAccount deletes a specific account based on the given ID
+func (server *Server) deleteAccount(ctx *gin.Context) {
+	var req deleteAccountRequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	err := server.store.DeleteAccount(ctx, req.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.Status(http.StatusOK)
 }
