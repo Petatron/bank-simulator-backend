@@ -5,13 +5,14 @@ import (
 	"net/http"
 
 	db "github.com/Petatron/bank-simulator-backend/db/sqlc"
+	model "github.com/Petatron/bank-simulator-backend/model"
 	"github.com/gin-gonic/gin"
 )
 
 // createAccountRequest defines the body for createAccount API request
 type createAccountRequest struct {
-	Owner    string `json:"owner" binding:"required"`
-	Currency string `json:"currency" binding:"required,oneof=USD EUR CAD"`
+	Owner    string             `json:"owner" binding:"required"`
+	Currency model.CurrencyType `json:"currency" binding:"required"`
 }
 
 // createAccount creates a new account
@@ -22,10 +23,15 @@ func (server *Server) createAccount(ctx *gin.Context) {
 		return
 	}
 
+	if !req.Currency.IsValid() {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid currency"})
+		return
+	}
+
 	arg := db.CreateAccountParams{
 		Owner:    req.Owner,
 		Balance:  0,
-		Currency: req.Currency,
+		Currency: string(req.Currency),
 	}
 
 	account, err := server.store.CreateAccount(ctx, arg)
