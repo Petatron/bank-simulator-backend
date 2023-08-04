@@ -4,27 +4,27 @@ import (
 	"database/sql"
 	"github.com/Petatron/bank-simulator-backend/api"
 	db "github.com/Petatron/bank-simulator-backend/db/sqlc"
+	"github.com/Petatron/bank-simulator-backend/db/util"
 	_ "github.com/lib/pq"
 	"log"
 )
 
-const (
-	dbDriver      = "postgres"
-	dbSource      = "postgresql://root:password@localhost:5432/bank_simulator?sslmode=disable"
-	serverAddress = "0.0.0.0:8080"
-)
-
 func main() {
-	conn, err := sql.Open(dbDriver, dbSource)
+	config, err := util.LoadConfig(".")
 	if err != nil {
-		log.Fatal("cannot connect to db", err)
+		log.Fatal("Unable to load project config with error: ", err)
+	}
+
+	conn, err := sql.Open(config.DBDriver, config.DBSource)
+	if err != nil {
+		log.Fatal("Cannot connect to Database with error: ", err)
 	}
 
 	store := db.NewStore(conn)
 	server := api.NewServer(store)
 
-	err = server.Start(serverAddress)
+	err = server.Start(config.ServerAddress)
 	if err != nil {
-		log.Fatal("cannot start server", err)
+		log.Fatal("Cannot start server with error: ", err)
 	}
 }

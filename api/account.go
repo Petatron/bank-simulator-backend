@@ -15,7 +15,7 @@ type createAccountRequest struct {
 	Currency model.CurrencyType `json:"currency" binding:"required"`
 }
 
-// createAccount creates a new account
+// createAccount implement the API that creates a new account
 func (server *Server) createAccount(ctx *gin.Context) {
 	var req createAccountRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -48,7 +48,7 @@ type getAccountRequest struct {
 	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
-// getAccount returns a specific account based on the given ID
+// getAccount implements the API that returns a specific account based on the given ID
 func (server *Server) getAccount(ctx *gin.Context) {
 	var req getAccountRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -75,7 +75,7 @@ type listAccountRequest struct {
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
-// listAccount implements the API returns a list of accounts
+// listAccount implements the API that returns a list of accounts
 func (server *Server) listAccount(ctx *gin.Context) {
 	var req listAccountRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
