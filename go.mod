@@ -8,6 +8,7 @@ require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.27.8
 	github.com/spf13/viper v1.16.0
+	go.uber.org/mock v0.2.0
 )
 
 require (

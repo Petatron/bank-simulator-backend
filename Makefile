@@ -2,6 +2,7 @@ postgres:
 	docker pull postgres:latest
 	docker rm -f postgres15
 	docker run --name postgres15 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -d postgres:latest
+
 createdb:
 	docker exec -it postgres15 createdb --username=root --owner=root bank_simulator
 
@@ -23,6 +24,9 @@ test:
 server:
 	go run main.go
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc test server
+mock:
+	mockgen -package mockdb  -destination db/mock/store.go github.com/Petatron/bank-simulator-backend/db/sqlc Store
+
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc test server mock
 # run-in-sequence: postgres dropdb createdb migratedown migrateup
 
