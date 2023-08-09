@@ -9,6 +9,12 @@ const (
 	CAD CurrencyType = "CAD"
 )
 
+var CurrencyMap = map[CurrencyType]string{
+	USD: "USD",
+	EUR: "EUR",
+	CAD: "CAD",
+}
+
 // IsValid check if the currency type is supported.
 func (c CurrencyType) IsValid() bool {
 	switch c {
