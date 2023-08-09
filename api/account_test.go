@@ -156,10 +156,6 @@ var _ = Describe("API tests", func() {
 
 				{
 					name: "Bad Request",
-					body: gin.H{
-						"owner":    account.Owner,
-						"currency": account.Currency,
-					},
 					buildStubs: func(store *mockdb.MockStore) {
 						store.EXPECT().
 							CreateAccount(gomock.Any(), gomock.Any()).
@@ -168,6 +164,51 @@ var _ = Describe("API tests", func() {
 
 					checkResponse: func(recorder *httptest.ResponseRecorder) {
 						Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+					},
+				},
+
+				{
+					name: "Not valid currency",
+					body: gin.H{
+						"owner":    account.Owner,
+						"currency": "invalid",
+					},
+					buildStubs: func(store *mockdb.MockStore) {
+						arg := db.CreateAccountParams{
+							Owner:    account.Owner,
+							Currency: account.Currency,
+							Balance:  0,
+						}
+						store.EXPECT().
+							CreateAccount(gomock.Any(), gomock.Eq(arg)).
+							Times(0)
+					},
+
+					checkResponse: func(recorder *httptest.ResponseRecorder) {
+						Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+					},
+				},
+
+				{
+					name: "Internal Error",
+					body: gin.H{
+						"owner":    account.Owner,
+						"currency": account.Currency,
+					},
+					buildStubs: func(store *mockdb.MockStore) {
+						arg := db.CreateAccountParams{
+							Owner:    account.Owner,
+							Currency: account.Currency,
+							Balance:  0,
+						}
+						store.EXPECT().
+							CreateAccount(gomock.Any(), gomock.Eq(arg)).
+							Times(1).
+							Return(db.Account{}, sql.ErrConnDone)
+					},
+
+					checkResponse: func(recorder *httptest.ResponseRecorder) {
+						Expect(recorder.Code).To(Equal(http.StatusInternalServerError))
 					},
 				},
 			}
