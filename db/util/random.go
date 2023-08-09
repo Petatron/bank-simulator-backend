@@ -41,9 +41,9 @@ func GetRandomOwnerName() string {
 // GetRandomCurrency generate a random currency code
 func GetRandomCurrency() string {
 	// List of currency code for testing
-	currencyList := make([]model.CurrencyType, 0, len(model.CurrencyMap))
-	for key := range model.CurrencyMap {
-		currencyList = append(currencyList, key)
+	currencyList := make([]string, 0, len(model.CurrencyMap))
+	for _, value := range model.CurrencyMap {
+		currencyList = append(currencyList, value)
 	}
-	return string(currencyList[rand.Intn(len(currencyList))])
+	return currencyList[rand.Intn(len(currencyList))]
 }
