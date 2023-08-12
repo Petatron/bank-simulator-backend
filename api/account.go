@@ -119,61 +119,30 @@ func (server *Server) deleteAccount(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-// updateAccountRequest defines the body for updateAccount API request
-type updateAccountRequest struct {
-	ID      int64  `json:"id" binding:"required"`
-	NewName string `json:"newName" binding:"required"`
+// updateAccountOwnerRequest defines the body for updateAccount API request
+type updateAccountOwnerRequest struct {
+	ID    int64  `json:"id" binding:"required"`
+	Owner string `json:"updateOwner" binding:"required"`
 }
 
-// updateAccount updates the owner's name of a specific account based on the given ID
-func (server *Server) updateAccountName(ctx *gin.Context) {
-	var req updateAccountRequest
+// updateAccountOwner implement the API that updates the owner's name of an account
+func (server *Server) updateAccountOwner(ctx *gin.Context) {
+	var req updateAccountOwnerRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	account, err := server.store.GetAccountForUpdate(ctx, req.ID)
 
-	arg := db.UpdateAccountNameParams{
-		ID:      account.ID,
-		NewName: req.NewName,
+	arg := db.UpdateAccountOwnerParams{
+		ID:    req.ID,
+		Owner: req.Owner,
 	}
-	account, err = server.store.UpdateAccountName(ctx, arg)
 
+	account, err := server.store.UpdateAccountOwner(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	ctx.Status(http.StatusOK)
-}
-
-// updateAccountBalanceRequest defines the body for updateAccount API request
-type updateAccountBalanceRequest struct {
-	ID         int64 `json:"id" binding:"required"`
-	NewBalance int64 `json:"newBalance" binding:"required"`
-}
-
-// updateAccountBalance updates the balance of a specific account based on the given ID
-func (server *Server) updateAccountBalance(ctx *gin.Context) {
-	var req updateAccountBalanceRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	account, err := server.store.GetAccountForUpdate(ctx, req.ID)
-
-	arg := db.UpdateAccountBalanceParams{
-		ID:      account.ID,
-		Balance: req.NewBalance,
-	}
-	print(req.NewBalance)
-	account, err = server.store.UpdateAccountBalance(ctx, arg)
-	print(err)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	ctx.Status(http.StatusOK)
+	ctx.JSON(http.StatusOK, account)
 }
