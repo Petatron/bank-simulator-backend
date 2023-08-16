@@ -119,3 +119,31 @@ func (server *Server) deleteAccount(ctx *gin.Context) {
 
 	ctx.Status(http.StatusOK)
 }
+
+// updateAccountOwnerRequest defines the body for updateAccount API request
+type updateAccountOwnerRequest struct {
+	ID    int64  `json:"id" binding:"required"`
+	Owner string `json:"updateOwner" binding:"required"`
+}
+
+// updateAccountOwner implement the API that updates the owner's name of an account
+func (server *Server) updateAccountOwner(ctx *gin.Context) {
+	var req updateAccountOwnerRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.UpdateAccountOwnerParams{
+		ID:    req.ID,
+		Owner: req.Owner,
+	}
+
+	account, err := server.store.UpdateAccountOwner(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, account)
+}

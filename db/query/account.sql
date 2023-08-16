@@ -38,3 +38,9 @@ FOR NO KEY UPDATE;
 -- name: DeleteAccount :exec
 DELETE FROM accounts
 WHERE id = $1;
+
+-- name: UpdateAccountOwner :one
+UPDATE accounts
+SET owner = $2
+WHERE id = $1
+RETURNING *;
