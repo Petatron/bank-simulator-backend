@@ -1,6 +1,7 @@
 package util
 
 import (
+	"github.com/Petatron/bank-simulator-backend/model"
 	"math/rand"
 )
 
@@ -40,6 +41,9 @@ func GetRandomOwnerName() string {
 // GetRandomCurrency generate a random currency code
 func GetRandomCurrency() string {
 	// List of currency code for testing
-	currencyList := []string{"USD", "EUR", "CAD", "CNY", "JPY"}
+	currencyList := make([]string, 0, len(model.CurrencyMap))
+	for _, value := range model.CurrencyMap {
+		currencyList = append(currencyList, value)
+	}
 	return currencyList[rand.Intn(len(currencyList))]
 }
