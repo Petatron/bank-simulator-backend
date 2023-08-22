@@ -114,7 +114,7 @@ var _ = Describe("API tests", func() {
 			},
 
 			{
-				name: "From Account Not Found",
+				name: "From Account Not Found 1",
 
 				body: gin.H{
 					"from_account_id": fromAccount.ID,
@@ -138,6 +138,34 @@ var _ = Describe("API tests", func() {
 
 				checkResponse: func(recorder *httptest.ResponseRecorder) {
 					Expect(recorder.Code).To(Equal(http.StatusNotFound))
+				},
+			},
+
+			{
+				name: "From Account Not Found 2",
+
+				body: gin.H{
+					"from_account_id": fromAccount.ID,
+					"to_account_id":   toAccount.ID,
+					"amount":          10,
+					"currency":        "USD",
+				},
+
+				buildStubs: func(store *mockdb.MockStore) {
+					store.EXPECT().
+						GetAccount(gomock.Any(), gomock.Eq(fromAccount.ID)).
+						Times(1).
+						Return(db.Account{}, sql.ErrConnDone)
+					store.EXPECT().
+						GetAccount(gomock.Any(), gomock.Eq(toAccount.ID)).
+						Times(0)
+					store.EXPECT().
+						TransferTx(gomock.Any(), gomock.Any()).
+						Times(0)
+				},
+
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusInternalServerError))
 				},
 			},
 
