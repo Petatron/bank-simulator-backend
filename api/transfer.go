@@ -17,7 +17,7 @@ type transferRequest struct {
 	Currency      m.CurrencyType `json:"currency" binding:"required,currency"`
 }
 
-// createTransfer implement the API that creates a new transfer
+// createTransfer implements the API that creates a new transfer
 func (server *Server) createTransfer(ctx *gin.Context) {
 	var req transferRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -48,6 +48,7 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, result)
 }
 
+// validAccount checks if the given account is valid(availability, currency validation)
 func (server *Server) validAccount(ctx *gin.Context, accountID int64, currency m.CurrencyType) bool {
 	account, err := server.store.GetAccount(ctx, accountID)
 	if err != nil {
@@ -56,11 +57,6 @@ func (server *Server) validAccount(ctx *gin.Context, accountID int64, currency m
 			return false
 		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return false
-	}
-
-	if account == (db.Account{}) {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "this account is not found"})
 		return false
 	}
 
