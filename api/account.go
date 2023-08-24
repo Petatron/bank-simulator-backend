@@ -13,7 +13,7 @@ import (
 // createAccountRequest defines the body for createAccount API request
 type createAccountRequest struct {
 	Owner    string             `json:"owner" binding:"required"`
-	Currency model.CurrencyType `json:"currency" binding:"required"`
+	Currency model.CurrencyType `json:"currency" binding:"required,currency"`
 }
 
 // createAccount implement the API that creates a new account
