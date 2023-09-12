@@ -34,7 +34,7 @@ func GetRandomStringWithLength(length int) string {
 // GetRandomOwnerName generate a random owner name
 func GetRandomOwnerName() string {
 	// Get a random length from 3 to 5
-	length := rand.Intn(3) + 3
+	length := rand.Intn(6) + 6
 	return GetRandomStringWithLength(length)
 }
 
@@ -46,4 +46,9 @@ func GetRandomCurrency() string {
 		currencyList = append(currencyList, value)
 	}
 	return currencyList[rand.Intn(len(currencyList))]
+}
+
+// GetRandomEmail generate a random email
+func GetRandomEmail() string {
+	return GetRandomStringWithLength(10) + "@" + GetRandomStringWithLength(5) + ".com"
 }
