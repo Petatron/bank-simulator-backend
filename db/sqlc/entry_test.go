@@ -12,11 +12,11 @@ var _ = Describe("SQL Entry Operations", func() {
 
 	Context("Entry Operations", func() {
 		It("Test CreateEntry", func() {
-			testOwnerName := util.GetRandomOwnerName()
+			testOwnerName := createRandomUser()
 			testBalance := util.GetRandomMoneyAmount()
 			testCurrency := util.GetRandomCurrency()
 			arg := CreateAccountParams{
-				Owner:    testOwnerName,
+				Owner:    testOwnerName.Username,
 				Balance:  testBalance,
 				Currency: testCurrency,
 			}
@@ -34,11 +34,11 @@ var _ = Describe("SQL Entry Operations", func() {
 		})
 
 		It("Test GetEntry", func() {
-			testOwnerName := util.GetRandomOwnerName()
+			testOwnerName := createRandomUser()
 			testBalance := util.GetRandomMoneyAmount()
 			testCurrency := util.GetRandomCurrency()
 			arg := CreateAccountParams{
-				Owner:    testOwnerName,
+				Owner:    testOwnerName.Username,
 				Balance:  testBalance,
 				Currency: testCurrency,
 			}
@@ -60,11 +60,11 @@ var _ = Describe("SQL Entry Operations", func() {
 		})
 
 		It("Test ListEntries", func() {
-			testOwnerName := util.GetRandomOwnerName()
+			testOwnerName := createRandomUser()
 			testBalance := util.GetRandomMoneyAmount()
 			testCurrency := util.GetRandomCurrency()
 			arg := CreateAccountParams{
-				Owner:    testOwnerName,
+				Owner:    testOwnerName.Username,
 				Balance:  testBalance,
 				Currency: testCurrency,
 			}
