@@ -10,11 +10,11 @@ import (
 )
 
 func createRandomAccount() Account {
-	testOwnerName := util.GetRandomOwnerName()
+	testOwnerName := createRandomUser()
 	testBalance := util.GetRandomMoneyAmount()
 	testCurrency := util.GetRandomCurrency()
 	arg := CreateAccountParams{
-		Owner:    testOwnerName,
+		Owner:    testOwnerName.Username,
 		Balance:  testBalance,
 		Currency: testCurrency,
 	}

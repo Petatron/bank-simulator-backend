@@ -12,8 +12,14 @@ dropdb:
 migrateup:
 	migrate -path db/migration -database "postgresql://root:password@localhost:5432/bank_simulator?sslmode=disable" -verbose up
 
+migrateup1:
+	migrate -path db/migration -database "postgresql://root:password@localhost:5432/bank_simulator?sslmode=disable" -verbose up 1
+
 migratedown:
 	migrate -path db/migration -database "postgresql://root:password@localhost:5432/bank_simulator?sslmode=disable" -verbose down
+
+migratedown1:
+	migrate -path db/migration -database "postgresql://root:password@localhost:5432/bank_simulator?sslmode=disable" -verbose down 1
 
 sqlc:
 	sqlc generate
@@ -27,6 +33,6 @@ server:
 mock:
 	mockgen -package mockdb  -destination db/mock/store.go github.com/Petatron/bank-simulator-backend/db/sqlc Store
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc test server mock
+.PHONY: postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 sqlc test server mock
 # run-in-sequence: postgres dropdb createdb migratedown migrateup
 
