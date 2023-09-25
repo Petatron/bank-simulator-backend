@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	db "github.com/Petatron/bank-simulator-backend/db/sqlc"
-	model "github.com/Petatron/bank-simulator-backend/model"
+	"github.com/Petatron/bank-simulator-backend/model"
 	"github.com/gin-gonic/gin"
 )
 

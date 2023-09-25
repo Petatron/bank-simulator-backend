@@ -19,6 +19,10 @@ var _ = Describe("Password", func() {
 			wrongPassword := GetRandomStringWithLength(10)
 			err = CheckPassword(wrongPassword, hashedPassword)
 			Expect(err).NotTo(BeNil())
+
+			longPassword := GetRandomStringWithLength(73)
+			_, err = HashPassword(longPassword)
+			Expect(err).NotTo(BeNil())
 		})
 	})
 })

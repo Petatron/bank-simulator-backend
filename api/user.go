@@ -17,6 +17,7 @@ type createUserRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 }
 
+// createUserResponse defines the response body for createUser API that hides the password to the user
 type createUserResponse struct {
 	Username          string    `json:"username"`
 	FullName          string    `json:"full_name"`
@@ -25,7 +26,7 @@ type createUserResponse struct {
 	CreatedAt         time.Time `json:"created_at"`
 }
 
-// createAccount implement the API that creates a new account
+// createUser implements the API that creates a new user
 func (server *Server) createUser(ctx *gin.Context) {
 	var req createUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -50,7 +51,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 		var pqError *pq.Error
 		if errors.As(err, &pqError) {
 			switch pqError.Code.Name() {
-			case "unique_violation":
+			case "unique_violation", "foreign_key_violation":
 				ctx.JSON(http.StatusForbidden, errorResponse(err))
 				return
 			}
