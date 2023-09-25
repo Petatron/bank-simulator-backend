@@ -12,7 +12,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -371,7 +371,7 @@ func getRandomAccount() db.Account {
 }
 
 func requireBodyMatchAccount(body *bytes.Buffer, account db.Account) {
-	data, err := ioutil.ReadAll(body)
+	data, err := io.ReadAll(body)
 	Expect(err).ShouldNot(HaveOccurred())
 
 	var gotAccount db.Account
@@ -381,7 +381,7 @@ func requireBodyMatchAccount(body *bytes.Buffer, account db.Account) {
 }
 
 func requireBodyMatchAccounts(body *bytes.Buffer, accounts []db.Account) {
-	data, err := ioutil.ReadAll(body)
+	data, err := io.ReadAll(body)
 	Expect(err).ShouldNot(HaveOccurred())
 
 	var gotAccount []db.Account
