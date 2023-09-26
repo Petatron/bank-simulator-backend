@@ -3,10 +3,11 @@ package api
 import (
 	"database/sql"
 	"errors"
+	"github.com/lib/pq"
 	"net/http"
 
 	db "github.com/Petatron/bank-simulator-backend/db/sqlc"
-	model "github.com/Petatron/bank-simulator-backend/model"
+	"github.com/Petatron/bank-simulator-backend/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,6 +38,14 @@ func (server *Server) createAccount(ctx *gin.Context) {
 
 	account, err := server.store.CreateAccount(ctx, arg)
 	if err != nil {
+		var pqError *pq.Error
+		if errors.As(err, &pqError) {
+			switch pqError.Code.Name() {
+			case "unique_violation", "foreign_key_violation":
+				ctx.JSON(http.StatusForbidden, errorResponse(err))
+				return
+			}
+		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}

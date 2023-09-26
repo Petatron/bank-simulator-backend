@@ -15,9 +15,10 @@ func TestOperations(t *testing.T) {
 }
 
 func createRandomUser() User {
+	hashedPassword, err := util.HashPassword(util.GetRandomStringWithLength(10))
 	arg := CreateUsersParams{
 		Username:       util.GetRandomOwnerName(),
-		HashedPassword: util.GetRandomStringWithLength(10),
+		HashedPassword: hashedPassword,
 		FullName:       util.GetRandomOwnerName(),
 		Email:          util.GetRandomEmail(),
 	}
