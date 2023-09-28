@@ -3,7 +3,7 @@ package model_test
 import (
 	"testing"
 
-	model "github.com/Petatron/bank-simulator-backend/model"
+	"github.com/Petatron/bank-simulator-backend/model"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
