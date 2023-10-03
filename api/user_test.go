@@ -166,7 +166,7 @@ var _ = Describe("API tests", func() {
 				tc.buildStubs(store)
 
 				// start test server and send request
-				server := NewServer(store)
+				server := newTestServer(store)
 				recorder := httptest.NewRecorder()
 
 				body, err := json.Marshal(tc.body)
