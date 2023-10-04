@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	mockdb "github.com/Petatron/bank-simulator-backend/db/mock"
@@ -183,14 +184,147 @@ var _ = Describe("API tests", func() {
 			})
 		}
 	})
+
+	Context("loginUser API", func() {
+		password, user := randomUserWithPassword()
+
+		testCases := []struct {
+			name          string
+			body          gin.H
+			buildStubs    func(store *mockdb.MockStore)
+			checkResponse func(recorder *httptest.ResponseRecorder)
+		}{
+			{
+				name: "OK",
+				body: gin.H{
+					"username": user.Username,
+					"password": password,
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					store.EXPECT().
+						GetUser(gomock.Any(), gomock.Eq(user.Username)).
+						Times(1).
+						Return(user, nil)
+				},
+
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusOK))
+				},
+			},
+
+			{
+				name: "Bad Request",
+				body: gin.H{
+					"username": user.Username,
+					"password": "",
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					store.EXPECT().
+						GetUser(gomock.Any(), gomock.Any()).
+						Times(0)
+				},
+
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+				},
+			},
+
+			{
+				name: "User Not Found 1",
+				body: gin.H{
+					"username": "NotFound",
+					"password": password,
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					store.EXPECT().
+						GetUser(gomock.Any(), gomock.Any()).
+						Times(1).
+						Return(user, sql.ErrNoRows)
+				},
+
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+				},
+			},
+
+			{
+				name: "User Not Found 2",
+				body: gin.H{
+					"username": user.Username,
+					"password": password,
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					store.EXPECT().
+						GetUser(gomock.Any(), gomock.Any()).
+						Times(1).
+						Return(user, fmt.Errorf("some error"))
+				},
+
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
+				},
+			},
+
+			{
+				name: "Incorrect Password",
+				body: gin.H{
+					"username": user.Username,
+					"password": "incorrect",
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					store.EXPECT().
+						GetUser(gomock.Any(), gomock.Eq(user.Username)).
+						Times(1).
+						Return(user, nil)
+				},
+
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
+				},
+			},
+		}
+
+		for i := range testCases {
+			tc := testCases[i]
+
+			It(fmt.Sprintf("Test case #%d: %s", i, tc.name), func() {
+				// create mock store
+				controller := gomock.NewController(GinkgoT())
+				defer controller.Finish()
+
+				store := mockdb.NewMockStore(controller)
+				tc.buildStubs(store)
+
+				// start test server and send request
+				server := newTestServer(store)
+				recorder := httptest.NewRecorder()
+
+				body, err := json.Marshal(tc.body)
+				Expect(err).ShouldNot(HaveOccurred())
+
+				url := "/users/login"
+				request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+				Expect(err).ShouldNot(HaveOccurred())
+
+				// call the server
+				server.router.ServeHTTP(recorder, request)
+				// check the response
+				tc.checkResponse(recorder)
+			})
+		}
+
+	})
 })
 
 func randomUserWithPassword() (password string, user db.User) {
-	password, err := util.HashPassword(util.GetRandomStringWithLength(10))
+	pass := util.GetRandomStringWithLength(10)
+	hashedPass, err := util.HashPassword(pass)
 	Expect(err).ShouldNot(HaveOccurred())
-	return password,
+
+	return pass,
 		db.User{
 			Username:          util.GetRandomOwnerName(),
+			HashedPassword:    hashedPass,
 			FullName:          util.GetRandomOwnerName(),
 			Email:             util.GetRandomEmail(),
 			PasswordChangedAt: time.Now(),
