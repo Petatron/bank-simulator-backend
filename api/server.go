@@ -38,9 +38,17 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 		}
 	}
 
+	server.setupRouter()
+
+	return server, nil
+}
+
+// setupRouter sets up all the routes for the HTTP server.
+func (server *Server) setupRouter() {
 	route := gin.Default()
 
 	route.POST("/users", server.createUser)
+	route.POST("/users/login", server.loginUser)
 	route.POST("/accounts", server.createAccount)
 	route.GET("/accounts/:id", server.getAccount)
 	route.GET("/accounts", server.listAccount)
@@ -48,8 +56,6 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	route.POST("/transfers", server.createTransfer)
 
 	server.router = route
-
-	return server, nil
 }
 
 // Start runs the HTTP server on a specific address.
