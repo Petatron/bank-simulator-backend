@@ -25,11 +25,6 @@ func (server *Server) createAccount(ctx *gin.Context) {
 		return
 	}
 
-	if !req.Currency.IsValid() {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid currency"})
-		return
-	}
-
 	// createAccount API rule: A logged-in user can only create an account for themselves
 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.CreateAccountParams{
