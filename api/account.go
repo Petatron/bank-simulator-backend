@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"errors"
+	"github.com/Petatron/bank-simulator-backend/token"
 	"github.com/lib/pq"
 	"net/http"
 
@@ -13,7 +14,6 @@ import (
 
 // createAccountRequest defines the body for createAccount API request
 type createAccountRequest struct {
-	Owner    string             `json:"owner" binding:"required"`
 	Currency model.CurrencyType `json:"currency" binding:"required,currency"`
 }
 
@@ -25,13 +25,10 @@ func (server *Server) createAccount(ctx *gin.Context) {
 		return
 	}
 
-	if !req.Currency.IsValid() {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid currency"})
-		return
-	}
-
+	// createAccount API rule: A logged-in user can only create an account for themselves
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.CreateAccountParams{
-		Owner:    req.Owner,
+		Owner:    authPayload.Username,
 		Balance:  0,
 		Currency: string(req.Currency),
 	}
@@ -76,6 +73,14 @@ func (server *Server) getAccount(ctx *gin.Context) {
 		return
 	}
 
+	// getAccount API rule: A logged-in user can only get an account for they own
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if account.Owner != authPayload.Username {
+		err := errors.New("account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	ctx.JSON(http.StatusOK, account)
 }
 
@@ -93,7 +98,10 @@ func (server *Server) listAccount(ctx *gin.Context) {
 		return
 	}
 
+	// listAccount API rule: A logged-in user can only get a list of accounts that belong to them
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.ListAccountsParams{
+		Owner:  authPayload.Username,
 		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}

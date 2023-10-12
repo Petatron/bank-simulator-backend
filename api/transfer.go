@@ -5,6 +5,7 @@ import (
 	"errors"
 	db "github.com/Petatron/bank-simulator-backend/db/sqlc"
 	m "github.com/Petatron/bank-simulator-backend/model"
+	"github.com/Petatron/bank-simulator-backend/token"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -25,14 +26,24 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 		return
 	}
 
-	if !server.validAccount(ctx, req.FromAccountID, req.Currency) {
+	fromAccount, valid := server.validAccount(ctx, req.FromAccountID, req.Currency)
+	if !valid {
 		return
 	}
 
-	if !server.validAccount(ctx, req.ToAccountID, req.Currency) {
+	// createTransfer API rule: A logged-in user can only create a transfer for the accounts they own
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if fromAccount.Owner != authPayload.Username {
+		err := errors.New("the account does not belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+	_, valid = server.validAccount(ctx, req.ToAccountID, req.Currency)
+	if !valid {
 		return
 	}
 
+	// createTransfer API rule: A logged-in user can only create a transfer for the accounts they own
 	arg := db.TransferTxParams{
 		FromAccountID: req.FromAccountID,
 		ToAccountID:   req.ToAccountID,
@@ -49,21 +60,21 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 }
 
 // validAccount checks if the given account is valid(availability, currency validation)
-func (server *Server) validAccount(ctx *gin.Context, accountID int64, currency m.CurrencyType) bool {
+func (server *Server) validAccount(ctx *gin.Context, accountID int64, currency m.CurrencyType) (db.Account, bool) {
 	account, err := server.store.GetAccount(ctx, accountID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": "this account is not found"})
-			return false
+			return account, false
 		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return false
+		return account, false
 	}
 
 	if account.Currency != string(currency) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "account currency does not match or incorrect"})
-		return false
+		return account, false
 	}
 
-	return true
+	return account, true
 }
