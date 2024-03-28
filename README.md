@@ -41,7 +41,7 @@ brew install docker
 brew install postgresql
 ```
 
-### Usage
+### 2. Usage
 
 #### Project Setup
 
