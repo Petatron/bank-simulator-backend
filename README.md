@@ -4,33 +4,34 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/Petatron/bank-simulator-backend.svg)](https://pkg.go.dev/github.com/Petatron/bank-simulator-backend)
 [![Build Status](https://dev.azure.com/Petatron/bank_simulator_backend/_apis/build/status%2FPetatron.bank-simulator-backend?branchName=main)](https://dev.azure.com/Petatron/bank_simulator_backend/_build/latest?definitionId=6&branchName=main)
 
-This project aimed to build a bank simulator system. The system features include:
+This project aimed to build the backend of a bank simulator system. The system features include:
 
-- User account CUDR.
-- Retrive the bank account info owned by users.
-- Making transation between two accounts.
-- Retrive transation records from user.
-
-For backend system, typically using `Golang` as programming language.
+- General user/account's CUDR.
+- Retrieve the bank account info owned by users.
+- Making transactions between two accounts.
+- Retrieve transactions records from user and its accounts.
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [MakeFile](#makefile)
+- [Future Work](#future-work)
 
-## Installation
+### 1. Installation
 
-Get latest production code.
+Get latest production code:
 
 ```bash
 git clone https://github.com/Petatron/bank-simulator-backend.git
 ```
 
-Install basic required environment.
+Install three basic required environment:
 
 - [Go installation](https://go.dev/dl/)
 - [Docker installation](https://www.docker.com/)
 - [PostgresSQL installation](https://www.postgresql.org/download/)
+- Postman or any other API testing tool.
 
 It is recommand to use `Homebrew` to manage and install if you are using Linux or try to use them on terminal. (Please make sure you have installed `Homebrew` before run below commands.)
 
@@ -40,35 +41,54 @@ brew install docker
 brew install postgresql
 ```
 
-## Usage
+### Usage
 
-### MakeFile
+#### Project Setup
 
-The project used MakeFile to set up docker image and migrate database to docker container.
+The project used MakeFile to set up docker image and migrate database to docker container. 
+After the environment tools installed Run the following commands to set up the project:
 
 ```bash
 # Pull docker image and start docker container.
 make postgres
 # Create database and set up username and password.
 make createdb
-# Remove database
-make dropdb
 # Create tables
 make migrateup
-# Remove database
-make migratedown
-# Gnerate Go code
-make sqlc
 ```
 
-### SQLc
-
-The project used [SQLc](https://docs.sqlc.dev/en/stable/tutorials/getting-started-postgresql.html) to generate type-safe database connection Go code from SQL.
-
-How to use SQLc in project?
-
+To start the server, run the following command:
 ```bash
-make sqlc
+go run main.go
+```
+
+#### API Endpoints
+
+The project provides the following API endpoints:
+
+- `GET /users`: Retrieve all users.
+- `GET /users/{id}`: Retrieve a user by its id.
+- `POST /users`: Create a new user.
+- `PUT /users/{id}`: Update a user by its id.
+- `DELETE /users/{id}`: Delete a user by its id.
+- `GET /users/{id}/accounts`: Retrieve all accounts owned by a user.
+
+In `Postman` or any other API testing tool, you can use the following API endpoints to interact with the system:
+- `Create a new user`: `POST http://localhost:8080/users`
+```json
+{
+    "username": "",
+    "full_name": "",
+    "email": "",
+    "password": ""
+}
+```
+- `User login`: `POST http://localhost:8080/login`
+```json
+{
+    "username": "",
+    "password": ""
+}
 ```
 
 Version 1.0.3
