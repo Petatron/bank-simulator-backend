@@ -4,6 +4,8 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/Petatron/bank-simulator-backend.svg)](https://pkg.go.dev/github.com/Petatron/bank-simulator-backend)
 [![Build Status](https://dev.azure.com/Petatron/bank_simulator_backend/_apis/build/status%2FPetatron.bank-simulator-backend?branchName=main)](https://dev.azure.com/Petatron/bank_simulator_backend/_build/latest?definitionId=6&branchName=main)
 
+![BS-Backend.png](BS-Backend.png)
+
 This project aimed to build the backend of a bank simulator system. The system features include:
 
 - General user/account's CUDR.
@@ -30,7 +32,6 @@ Install three basic required environment:
 
 - [Go installation](https://go.dev/dl/)
 - [Docker installation](https://www.docker.com/)
-- [PostgresSQL installation](https://www.postgresql.org/download/)
 - Postman or any other API testing tool.
 
 It is recommand to use `Homebrew` to manage and install if you are using Linux or try to use them on terminal. (Please make sure you have installed `Homebrew` before run below commands.)
@@ -38,7 +39,6 @@ It is recommand to use `Homebrew` to manage and install if you are using Linux o
 ```bash
 brew install go
 brew install docker
-brew install postgresql
 ```
 
 ### 2. Usage
@@ -73,7 +73,7 @@ The project provides the following API endpoints:
 - `DELETE /users/{id}`: Delete a user by its id.
 - `GET /users/{id}/accounts`: Retrieve all accounts owned by a user.
 
-In `Postman` or any other API testing tool, you can use the following API endpoints to interact with the system:
+In `Postman`or any other API testing tool, you can use the following API endpoints to interact with the system:
 - `Create a new user`: `POST http://localhost:8080/users`
 ```json
 {
@@ -83,7 +83,7 @@ In `Postman` or any other API testing tool, you can use the following API endpoi
     "password": ""
 }
 ```
-- `User login`: `POST http://localhost:8080/login`
+- `User login`: `POST http://localhost:8080/users/login`
 ```json
 {
     "username": "",
