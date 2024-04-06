@@ -655,6 +655,91 @@ var _ = Describe("API tests", func() {
 			})
 		}
 	})
+
+	Context("deleteAccount API", func() {
+		userName := util.GetRandomOwnerName()
+		account := getRandomAccount(userName)
+
+		testCases := []struct {
+			name          string
+			accountID     int64
+			setupAuth     func(request *http.Request, tokenMaker token.Maker)
+			buildStubs    func(store *mockdb.MockStore)
+			checkResponse func(recorder *httptest.ResponseRecorder)
+		}{
+			{
+				name:      "URI Binding Error",
+				accountID: 0, // Assuming 0 is an invalid ID to trigger the binding error
+				setupAuth: func(request *http.Request, tokenMaker token.Maker) {
+					addAuthorizations(request, tokenMaker, authorizationTypeBearer, userName, time.Minute)
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					// No stubbing needed for this test
+				},
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+				},
+			},
+			{
+				name:      "Internal Server Error",
+				accountID: account.ID,
+				setupAuth: func(request *http.Request, tokenMaker token.Maker) {
+					addAuthorizations(request, tokenMaker, authorizationTypeBearer, userName, time.Minute)
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					store.EXPECT().
+						DeleteAccount(gomock.Any(), gomock.Eq(account.ID)).
+						Return(errors.New("internal error"))
+				},
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusInternalServerError))
+				},
+			},
+			{
+				name:      "OK",
+				accountID: account.ID,
+				setupAuth: func(request *http.Request, tokenMaker token.Maker) {
+					addAuthorizations(request, tokenMaker, authorizationTypeBearer, userName, time.Minute)
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					store.EXPECT().
+						DeleteAccount(gomock.Any(), gomock.Eq(account.ID)).
+						Return(nil) // Simulate successful deletion
+				},
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusOK))
+				},
+			},
+		}
+
+		for _, tc := range testCases {
+			It(fmt.Sprintf("Test case: %s", tc.name), func() {
+				// Create a mock store
+				controller := gomock.NewController(GinkgoT())
+				defer controller.Finish()
+				store := mockdb.NewMockStore(controller)
+
+				tc.buildStubs(store) // Setup the expected database interactions
+
+				// Start test server and send request
+				server := newTestServer(store)
+				recorder := httptest.NewRecorder()
+
+				url := fmt.Sprintf("/accounts/%d", tc.accountID)
+				request, err := http.NewRequest(http.MethodDelete, url, nil)
+				Expect(err).NotTo(HaveOccurred())
+
+				tc.setupAuth(request, server.tokenMaker)
+
+				// Call the server
+				server.router.ServeHTTP(recorder, request)
+
+				// Check the response
+				tc.checkResponse(recorder)
+			})
+		}
+	})
+
 })
 
 func getRandomAccount(owner string) db.Account {
