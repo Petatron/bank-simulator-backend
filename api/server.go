@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+
 	db "github.com/Petatron/bank-simulator-backend/db/sqlc"
 	"github.com/Petatron/bank-simulator-backend/db/util"
 	"github.com/Petatron/bank-simulator-backend/token"

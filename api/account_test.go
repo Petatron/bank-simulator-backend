@@ -4,7 +4,14 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+
 	mockdb "github.com/Petatron/bank-simulator-backend/db/mock"
 	db "github.com/Petatron/bank-simulator-backend/db/sqlc"
 	"github.com/Petatron/bank-simulator-backend/db/util"
@@ -14,11 +21,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"testing"
-	"time"
 )
 
 func TestAccountAPIs(t *testing.T) {
@@ -54,23 +56,36 @@ var _ = Describe("API tests", func() {
 			checkResponse func(recorder *httptest.ResponseRecorder)
 		}{
 			{
-				name:      "getAccount OK",
-				accountID: account.ID,
+				name:      "URI Binding Error",
+				accountID: 0, // Assuming 0 is an invalid ID for testing
 				setupAuth: func(request *http.Request, tokenMaker token.Maker) {
 					addAuthorizations(request, tokenMaker, authorizationTypeBearer, userName, time.Minute)
 				},
 				buildStubs: func(store *mockdb.MockStore) {
+					// No stubbing needed for this test
+				},
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+				},
+			},
+			{
+				name:      "Account Ownership Error",
+				accountID: account.ID, // Assuming this is a valid account ID
+				setupAuth: func(request *http.Request, tokenMaker token.Maker) {
+					// Set up authorization for a user different from the account owner
+					addAuthorizations(request, tokenMaker, authorizationTypeBearer, "otherUser", time.Minute)
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					// Stub the database to return an account owned by a different user
 					store.EXPECT().
 						GetAccount(gomock.Any(), gomock.Eq(account.ID)).
 						Times(1).
-						Return(account, nil)
+						Return(db.Account{Owner: "actualOwner", ID: account.ID}, nil)
 				},
 				checkResponse: func(recorder *httptest.ResponseRecorder) {
-					requireBodyMatchAccount(recorder.Body, account)
-					Expect(recorder.Code).To(Equal(http.StatusOK))
+					Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
 				},
 			},
-
 			{
 				name:      "Unauthorized User",
 				accountID: account.ID,
@@ -119,7 +134,22 @@ var _ = Describe("API tests", func() {
 					Expect(recorder.Code).To(Equal(http.StatusNotFound))
 				},
 			},
-
+			{
+				name:      "Account Not Found",
+				accountID: account.ID, // Assuming this is a non-existent account ID
+				setupAuth: func(request *http.Request, tokenMaker token.Maker) {
+					addAuthorizations(request, tokenMaker, authorizationTypeBearer, userName, time.Minute)
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					store.EXPECT().
+						GetAccount(gomock.Any(), gomock.Eq(account.ID)).
+						Times(1).
+						Return(db.Account{}, sql.ErrNoRows)
+				},
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusNotFound))
+				},
+			},
 			{
 				name:      "Internal Error",
 				accountID: account.ID,
@@ -136,7 +166,22 @@ var _ = Describe("API tests", func() {
 					Expect(recorder.Code).To(Equal(http.StatusInternalServerError))
 				},
 			},
-
+			{
+				name:      "Internal Server Error",
+				accountID: account.ID, // Can use a valid or invalid ID here; it won't matter because the stub will force an error
+				setupAuth: func(request *http.Request, tokenMaker token.Maker) {
+					addAuthorizations(request, tokenMaker, authorizationTypeBearer, userName, time.Minute)
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					store.EXPECT().
+						GetAccount(gomock.Any(), gomock.Eq(account.ID)).
+						Times(1).
+						Return(db.Account{}, errors.New("internal server error"))
+				},
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusInternalServerError))
+				},
+			},
 			{
 				name:      "Invalid ID",
 				accountID: 0,
@@ -150,6 +195,23 @@ var _ = Describe("API tests", func() {
 				},
 				checkResponse: func(recorder *httptest.ResponseRecorder) {
 					Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+				},
+			},
+			{
+				name:      "getAccount OK",
+				accountID: account.ID,
+				setupAuth: func(request *http.Request, tokenMaker token.Maker) {
+					addAuthorizations(request, tokenMaker, authorizationTypeBearer, userName, time.Minute)
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					store.EXPECT().
+						GetAccount(gomock.Any(), gomock.Eq(account.ID)).
+						Times(1).
+						Return(account, nil)
+				},
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					requireBodyMatchAccount(recorder.Body, account)
+					Expect(recorder.Code).To(Equal(http.StatusOK))
 				},
 			},
 		}
@@ -444,6 +506,120 @@ var _ = Describe("API tests", func() {
 
 				checkResponse: func(recorder *httptest.ResponseRecorder) {
 					Expect(recorder.Code).To(Equal(http.StatusForbidden))
+				},
+			},
+			{
+				name: "Foreign Key Violation",
+				body: gin.H{
+					"owner":    "user1",
+					"currency": "USD",
+				},
+				setupAuth: func(request *http.Request, tokenMaker token.Maker) {
+					addAuthorizations(request, tokenMaker, authorizationTypeBearer, "user1", time.Minute)
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					arg := db.CreateAccountParams{
+						Owner:    "user1",
+						Currency: "USD",
+						Balance:  0,
+					}
+					pqError := &pq.Error{Code: "23503"} // assuming 23503 is the code for a foreign key violation
+					store.EXPECT().
+						CreateAccount(gomock.Any(), gomock.Eq(arg)).
+						Times(1).
+						Return(db.Account{}, pqError)
+				},
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusForbidden))
+				},
+			},
+			{
+				name: "Unique Violation Error",
+				body: gin.H{
+					"owner":    userName, // assuming the username is already taken
+					"currency": "USD",
+				},
+				setupAuth: func(request *http.Request, tokenMaker token.Maker) {
+					addAuthorizations(request, tokenMaker, authorizationTypeBearer, userName, time.Minute)
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					arg := db.CreateAccountParams{
+						Owner:    userName,
+						Currency: "USD",
+						Balance:  0,
+					}
+					pqError := &pq.Error{
+						Code: "23505", // PostgreSQL error code for unique_violation
+					}
+					store.EXPECT().
+						CreateAccount(gomock.Any(), gomock.Eq(arg)).
+						Times(1).
+						Return(db.Account{}, pqError)
+				},
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusForbidden))
+				},
+			},
+			{
+				name: "Internal Server Error",
+				body: gin.H{
+					"owner":    userName,
+					"currency": "USD",
+				},
+				setupAuth: func(request *http.Request, tokenMaker token.Maker) {
+					addAuthorizations(request, tokenMaker, authorizationTypeBearer, userName, time.Minute)
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					arg := db.CreateAccountParams{
+						Owner:    userName,
+						Currency: "USD",
+						Balance:  0,
+					}
+					store.EXPECT().
+						CreateAccount(gomock.Any(), gomock.Eq(arg)).
+						Times(1).
+						Return(db.Account{}, errors.New("unexpected database error"))
+				},
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusInternalServerError))
+				},
+			},
+			{
+				name: "Successful Account Creation",
+				body: gin.H{
+					"currency": "USD",
+				},
+				setupAuth: func(request *http.Request, tokenMaker token.Maker) {
+					addAuthorizations(request, tokenMaker, authorizationTypeBearer, userName, time.Minute)
+				},
+				buildStubs: func(store *mockdb.MockStore) {
+					arg := db.CreateAccountParams{
+						Owner:    userName, // Assuming userName is obtained from the token
+						Currency: "USD",
+						Balance:  0,
+					}
+					// Mock account returned from the database operation
+					mockedAccount := db.Account{
+						ID:       1, // Assuming a successful creation returns an account with ID 1
+						Owner:    userName,
+						Balance:  0,
+						Currency: "USD",
+					}
+					store.EXPECT().
+						CreateAccount(gomock.Any(), gomock.Eq(arg)).
+						Times(1).
+						Return(mockedAccount, nil)
+				},
+				checkResponse: func(recorder *httptest.ResponseRecorder) {
+					Expect(recorder.Code).To(Equal(http.StatusOK))
+
+					var account db.Account
+					err := json.NewDecoder(recorder.Body).Decode(&account)
+					Expect(err).ShouldNot(HaveOccurred())
+					Expect(account.ID).To(Equal(int64(1)))
+					Expect(account.Owner).To(Equal(userName))
+					Expect(account.Currency).To(Equal("USD"))
+					Expect(account.Balance).To(Equal(int64(0)))
 				},
 			},
 		}

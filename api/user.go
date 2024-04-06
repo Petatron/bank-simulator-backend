@@ -3,12 +3,13 @@ package api
 import (
 	"database/sql"
 	"errors"
+	"net/http"
+	"time"
+
 	db "github.com/Petatron/bank-simulator-backend/db/sqlc"
 	"github.com/Petatron/bank-simulator-backend/db/util"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
-	"net/http"
-	"time"
 )
 
 type createUserRequest struct {
