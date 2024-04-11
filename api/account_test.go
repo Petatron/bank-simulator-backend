@@ -10,10 +10,10 @@ import (
 	"github.com/Petatron/bank-simulator-backend/db/util"
 	"github.com/Petatron/bank-simulator-backend/token"
 	"github.com/gin-gonic/gin"
+	"github.com/golang/mock/gomock"
 	"github.com/lib/pq"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"go.uber.org/mock/gomock"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -33,7 +33,8 @@ func addAuthorizations(
 	authorizationType, username string,
 	duration time.Duration,
 ) {
-	resultToken, err := tokenMaker.CreateToken(username, duration)
+	resultToken, payload, err := tokenMaker.CreateToken(username, duration)
+	Expect(payload).ShouldNot(BeNil())
 	if err != nil {
 		panic(err)
 	}

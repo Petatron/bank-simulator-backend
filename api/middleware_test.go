@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Petatron/bank-simulator-backend/token"
 	"github.com/gin-gonic/gin"
+	"github.com/onsi/gomega"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,10 +18,11 @@ func addAuthorization(
 	authorizationType, username string,
 	duration time.Duration,
 ) {
-	resultToken, err := tokenMaker.CreateToken(username, duration)
+	resultToken, payload, err := tokenMaker.CreateToken(username, duration)
 	if err != nil {
 		t.Fatal(err)
 	}
+	gomega.Expect(payload).NotTo(gomega.BeNil())
 	authorizationHeader := fmt.Sprintf("%s %s", authorizationType, resultToken)
 	request.Header.Set(authorizationHeaderKey, authorizationHeader)
 }

@@ -24,11 +24,11 @@ var _ = Describe("PASETO maker tests", func() {
 		issuedAt := time.Now()
 		expiredAt := issuedAt.Add(duration)
 
-		token, err := maker.CreateToken(username, duration)
+		token, payload, err := maker.CreateToken(username, duration)
 		Expect(err).To(BeNil())
 		Expect(token).NotTo(BeEmpty())
 
-		payload, err := maker.VerifyToken(token)
+		payload, err = maker.VerifyToken(token)
 		Expect(err).To(BeNil())
 		Expect(payload).NotTo(BeNil())
 		Expect(payload.Username).To(Equal(username))
@@ -40,11 +40,11 @@ var _ = Describe("PASETO maker tests", func() {
 		maker, err := NewPasetoMaker(util.GetRandomStringWithLength(32))
 		Expect(err).To(BeNil())
 
-		token, err := maker.CreateToken(util.GetRandomOwnerName(), -time.Minute)
+		token, payload, err := maker.CreateToken(util.GetRandomOwnerName(), -time.Minute)
 		Expect(err).To(BeNil())
 		Expect(token).NotTo(BeEmpty())
 
-		payload, err := maker.VerifyToken(token)
+		payload, err = maker.VerifyToken(token)
 		Expect(err).To(Equal(ErrExpiredToken))
 		Expect(payload).To(BeNil())
 	})

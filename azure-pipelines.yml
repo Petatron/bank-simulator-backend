@@ -16,7 +16,7 @@ services:
       POSTGRES_DB: bank_simulator
 
 variables:
-  goVersion: '1.21.0' # Go version
+  goVersion: '1.22.2' # Go version
 
 steps:
   - task: GoTool@0

@@ -9,10 +9,10 @@ import (
 	db "github.com/Petatron/bank-simulator-backend/db/sqlc"
 	"github.com/Petatron/bank-simulator-backend/db/util"
 	"github.com/gin-gonic/gin"
+	"github.com/golang/mock/gomock"
 	"github.com/lib/pq"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"go.uber.org/mock/gomock"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -205,6 +205,9 @@ var _ = Describe("API tests", func() {
 						GetUser(gomock.Any(), gomock.Eq(user.Username)).
 						Times(1).
 						Return(user, nil)
+					store.EXPECT().
+						CreateSession(gomock.Any(), gomock.Any()).
+						Times(1)
 				},
 
 				checkResponse: func(recorder *httptest.ResponseRecorder) {
