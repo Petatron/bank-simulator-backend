@@ -33,7 +33,8 @@ func addAuthorizations(
 	authorizationType, username string,
 	duration time.Duration,
 ) {
-	resultToken, err := tokenMaker.CreateToken(username, duration)
+	resultToken, payload, err := tokenMaker.CreateToken(username, duration)
+	Expect(payload).ShouldNot(BeNil())
 	if err != nil {
 		panic(err)
 	}
