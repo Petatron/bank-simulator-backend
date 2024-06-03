@@ -91,4 +91,4 @@ In `Postman`or any other API testing tool, you can use the following API endpoin
 }
 ```
 
-Version 1.0.3
+Version 1.1.2
