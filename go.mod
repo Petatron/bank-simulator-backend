@@ -1,6 +1,6 @@
 module github.com/Petatron/bank-simulator-backend
 
-go 1.24
+go 1.24.0
 
 require (
 	github.com/aead/chacha20poly1305 v0.0.0-20201124145622-1a5aba2a8b29
@@ -13,7 +13,7 @@ require (
 	github.com/onsi/gomega v1.36.2
 	github.com/spf13/viper v1.19.0
 	go.uber.org/mock v0.5.0
-	golang.org/x/crypto v0.35.0
+	golang.org/x/crypto v0.45.0
 )
 
 require (
@@ -53,9 +53,9 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.14.0 // indirect
 	golang.org/x/exp v0.0.0-20250218142911-aa4b98e5adaa // indirect
-	golang.org/x/net v0.36.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
